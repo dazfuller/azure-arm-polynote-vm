@@ -338,5 +338,9 @@
         }
     ],
     "outputs": {
+        "vmFqdn": {
+            "type": "string",
+            "value": "[reference(variables('vmPublicIpName')).dnsSettings.fqdn]"
+        }
     }
 }
