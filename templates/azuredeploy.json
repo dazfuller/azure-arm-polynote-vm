@@ -32,9 +32,6 @@
         "vmSize": {
             "type": "string",
             "defaultValue": "Standard_D2s_v3",
-            "allowedValues": [
-                "Standard_D2s_v3"
-            ],
             "metadata": {
                 "description": "SKU for the virtual machine"
             }
