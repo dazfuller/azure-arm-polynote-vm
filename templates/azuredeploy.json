@@ -291,7 +291,32 @@
                         "storageUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net/')]"
                     }
                 }
-            }
+            },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "apiVersion": "2019-03-01",
+                    "name": "config-app",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                        },
+                        "protectedSettings": {
+                            "commandToExecute": "[concat('sh setup.sh ', parameters('vmAdminUser'))]",
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/setup.sh"
+                            ]
+                        }
+                    }
+                }
+            ]
         },
         {
             "type": "microsoft.devtestlab/schedules",
