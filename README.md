@@ -25,3 +25,11 @@ By default the template will deploy a `Standard_D2s_V3` server running Ubuntu 18
 ```bash
 az vm list-sizes -o table
 ```
+
+Once deployed you can SSH onto the virtual machine and start the server simply by executing the following (after finding the DNS entry for the Public IP deployed).
+
+```bash
+polynote
+```
+
+After this you can navigate to the server from your web browser (check website for compatibility) at http://<fully qualified domain name>:8192
