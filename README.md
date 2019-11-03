@@ -34,4 +34,43 @@ Once deployed you can SSH onto the virtual machine and start the server simply b
 polynote
 ```
 
-After this you can navigate to the server from your web browser (check website for compatibility) at http://<fully qualified domain name>:8192
+After this you can navigate to the server from your web browser (check website for compatibility) at a URL similar to the following: `http://myvmname.northeurope.cloudapp.azure.com:8192` (actual URL will vary based on your deployment options).
+
+## Available VM sizes
+
+If you want to filter this list based on number of cores or memory available then you can do this using the `--query` parameter which utilizes [JMESPath](http://jmespath.org/). Remember to change the location to the Azure region you want to deploy to.
+
+_N.B. All commands are outputting in a table format for ease of reading._
+
+### Getting available locations
+
+You can list the locations available to you as an option using the Azure CLI as follows.
+
+```bash
+az account list-locations --output table
+```
+
+### Querying for VM sizes
+
+For example, to find all [DS_v3 series](https://docs.microsoft.com/azure/virtual-machines/linux/sizes-general#dsv3-series-1) sizes with more than 8Gb of memory in North Europe you could use the following query.
+
+```bash
+az vm list-sizes --location northeurope --query "[?starts_with(name, 'Standard_D') && ends_with(name, 's_v3') && memoryInMb > `8192`]" -o table
+```
+
+**REMEMBER** if you're using Powershell to query using the Azure CLI you will need to escape the back ticks (see the memory part of the query below).
+
+```powershell
+az vm list-sizes --location northeurope --query "[?starts_with(name, 'Standard_D') && ends_with(name, 's_v3') && memoryInMb > ``8192``]" -o table
+```
+
+Based on my own subscription this outputs the following:
+
+Name             | NumberOfCores   | OsDiskSizeInMb   | ResourceDiskSizeInMb   | MemoryInMb   | MaxDataDiskCount
+---------------- | --------------- | ---------------- | ---------------------- | ------------ | ------------------
+Standard_D4s_v3  | 4               | 1047552          | 32768                  | 16384        | 8
+Standard_D8s_v3  | 8               | 1047552          | 65536                  | 32768        | 16
+Standard_D16s_v3 | 16              | 1047552          | 131072                 | 65536        | 32
+Standard_D32s_v3 | 32              | 1047552          | 262144                 | 131072       | 32
+Standard_D48s_v3 | 48              | 1047552          | 393216                 | 196608       | 32
+Standard_D64s_v3 | 64              | 1047552          | 524288                 | 262144       | 32
