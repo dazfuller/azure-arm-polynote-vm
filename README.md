@@ -64,7 +64,7 @@ az vm list-sizes --location northeurope --query "[?starts_with(name, 'Standard_D
 az vm list-sizes --location northeurope --query "[?starts_with(name, 'Standard_D') && ends_with(name, 's_v3') && memoryInMb > ``8192``]" -o table
 ```
 
-Based on my own subscription this outputs the following:
+Based on my own subscription this outputs the following (at the time of writing):
 
 Name             | NumberOfCores   | OsDiskSizeInMb   | ResourceDiskSizeInMb   | MemoryInMb   | MaxDataDiskCount
 ---------------- | --------------- | ---------------- | ---------------------- | ------------ | ------------------
