@@ -10,13 +10,13 @@ echo "Installing Pip3 ..."
 apt install python3-pip -y
 
 echo "Downloading Spark ..."
-curl -L -O http://apache.mirror.anlx.net/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz
-tar xvf spark-2.4.4-bin-hadoop2.7.tgz
+curl -o spark-dist.tgz -L -O http://apache.mirror.anlx.net/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz
+tar xvf spark-dist.tgz
 if [ -d "/opt/spark" ]; then rm -Rf /opt/spark; fi
 mv spark-2.4.4-bin-hadoop2.7/ /opt/spark
 
 echo "Downloading Polynote ..."
-curl -L -O https://github.com/polynote/polynote/releases/download/0.2.13/polynote-dist-2.12.tar.gz
+curl -o polynote-dist.tar.gz -L -O  https://github.com/polynote/polynote/releases/download/0.2.13/polynote-dist-2.12.tar.gz
 tar -zxvpf polynote-dist.tar.gz
 if [ -d "/opt/polynote" ]; then rm -Rf /opt/polynote; fi
 mv polynote/ /opt/polynote
