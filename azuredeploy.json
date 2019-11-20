@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "resourcePrefix": {
@@ -308,7 +308,8 @@
                         "protectedSettings": {
                             "commandToExecute": "[concat('sh setup.sh ', parameters('vmAdminUser'))]",
                             "fileUris": [
-                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/setup.sh"
+                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/setup.sh",
+                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/polynote-server.service"
                             ]
                         }
                     }

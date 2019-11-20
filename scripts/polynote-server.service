@@ -1,0 +1,15 @@
+[Unit]
+Description=Polynote Server
+
+[Service]
+EnvironmentFile=/etc/environment
+User=polyadmin
+Group=polyadmin
+Type=simple
+ExecStart=/opt/polynote/polynote
+Restart=on-failure
+RestartSec=5s
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

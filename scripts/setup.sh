@@ -57,4 +57,10 @@ pip3 install jep jedi pyspark virtualenv numpy pandas fastparquet requests
 
 chown -R $1:$1 /opt/polynote
 
+echo "Creating and enabling service"
+cp polynote-server.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable polynote-server.service
+service polynote-server start
+
 bash
