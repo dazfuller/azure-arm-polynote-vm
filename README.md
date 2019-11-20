@@ -28,13 +28,19 @@ By default the template will deploy a `Standard_D2s_V3` server running Ubuntu 18
 az vm list-sizes -o table
 ```
 
-Once deployed you can SSH onto the virtual machine and start the server simply by executing the following (after finding the DNS entry for the Public IP deployed).
+When the deployment is complete the polynote service should be started, so you can point your browser to `http://<vm name>.<region>.cloudapp.azure.com:8192` and start playing. You can also SSH onto the virtual machine and have a look around.
+
+_N.B._ The default port for Polynote is `8192`, if you want to change this you will need to modify the YAML configuration file as per the [documentation](https://polynote.org/docs/01-installation.html).
+
+You can find the IP address/DNS name for your VM either via the Azure Portal or from the command line.
 
 ```bash
-polynote
-```
+# Get the VM name
+az vm list -g <resource group name> -o table
 
-After this you can navigate to the server from your web browser (check website for compatibility) at a URL similar to the following: `http://myvmname.northeurope.cloudapp.azure.com:8192` (actual URL will vary based on your deployment options).
+# Get the fully-qualified domain name
+az network public-ip show -g <resource group name> -n <vm name> --query "dnsSettings.fqdn"
+```
 
 ## Available VM sizes
 
