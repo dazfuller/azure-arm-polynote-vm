@@ -2,9 +2,10 @@
 echo "Updating packages ..."
 apt update
 apt upgrade -y
+apt update
 
-echo "Installing Java OpenJDK 8 ..."
-apt install openjdk-8-jdk -y
+echo "Installing Java OpenJDK 11 ..."
+apt install openjdk-11-jdk -y
 
 echo "Installing Pip3 ..."
 apt install python3-pip -y
@@ -29,7 +30,7 @@ echo "  port: 8192" >> /opt/polynote/config.yml
 
 echo "Setting user profile environment variables ..."
 if [ -z "$JAVA_HOME" ]; then
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
     echo ""
     echo "export JAVA_HOME=$JAVA_HOME" >> /etc/bash.bashrc
     echo "export PATH=\"\$PATH:\$JAVA_HOME/bin"\" >> /etc/bash.bashrc
