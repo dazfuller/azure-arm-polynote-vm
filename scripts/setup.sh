@@ -37,8 +37,9 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 if [ -z "$SPARK_HOME" ]; then
+    echo SPARK_HOME=/opt/spark
     echo ""
-    echo "export SPARK_HOME=/opt/spark" >> /etc/bash.bashrc
+    echo "export SPARK_HOME=$SPARK_HOME" >> /etc/bash.bashrc
     echo "export PATH=\"\$PATH:\$SPARK_HOME/bin:\$SPARK_HOME/sbin"\" >> /etc/bash.bashrc
 fi
 
@@ -48,8 +49,9 @@ if [ -z "$PYSPARK_ALLOW_INSECURE_GATEWAY" ]; then
 fi
 
 if [ -z "$POLYNOTE_HOME" ]; then
+    export POLYNOTE_HOME=/opt/polynote
     echo ""
-    echo "export POLYNOTE_HOME=/opt/polynote" >> /etc/bash.bashrc
+    echo "export POLYNOTE_HOME=$POLYNOTE_HOME" >> /etc/bash.bashrc
     echo "export PATH=\"\$PATH:\$POLYNOTE_HOME"\" >> /etc/bash.bashrc
 fi
 
@@ -62,11 +64,10 @@ echo "Refreshing bash"
 bash
 
 echo "Updating /etc/environment"
-echo "JAVA_HOME=\"$JAVA_HOME"\" > /etc/environment
+echo "JAVA_HOME=\"$JAVA_HOME"\" >> /etc/environment
 echo "SPARK_HOME=\"$SPARK_HOME"\" >> /etc/environment
 echo "PYSPARK_ALLOW_INSECURE_GATEWAY=1" >> /etc/environment
 echo "POLYNOTE_HOME=\"$POLYNOTE_HOME"\" >> /etc/environment
-echo "PATH=\"$PATH"\" >> /etc/environment
 
 echo "Creating and enabling service"
 cp polynote-server.service /etc/systemd/system/
