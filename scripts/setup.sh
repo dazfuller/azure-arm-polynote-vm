@@ -58,12 +58,6 @@ pip3 install jep jedi pyspark virtualenv numpy pandas fastparquet requests
 
 chown -R $1:$1 /opt/polynote
 
-echo "Creating and enabling service"
-cp polynote-server.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable polynote-server.service
-service polynote-server start
-
 echo "Refreshing bash"
 bash
 
@@ -73,3 +67,9 @@ echo "SPARK_HOME=\"$SPARK_HOME"\" >> /etc/environment
 echo "PYSPARK_ALLOW_INSECURE_GATEWAY=1" >> /etc/environment
 echo "POLYNOTE_HOME=\"$POLYNOTE_HOME"\" >> /etc/environment
 echo "PATH=\"$PATH"\" >> /etc/environment
+
+echo "Creating and enabling service"
+cp polynote-server.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable polynote-server.service
+service polynote-server start
