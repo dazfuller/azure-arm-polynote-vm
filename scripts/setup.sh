@@ -64,4 +64,12 @@ systemctl daemon-reload
 systemctl enable polynote-server.service
 service polynote-server start
 
+echo "Refreshing bash"
 bash
+
+echo "Updating /etc/environment"
+echo "JAVA_HOME=\"$JAVA_HOME"\" > /etc/environment
+echo "SPARK_HOME=\"$SPARK_HOME"\" >> /etc/environment
+echo "PYSPARK_ALLOW_INSECURE_GATEWAY=1" >> /etc/environment
+echo "POLYNOTE_HOME=\"$POLYNOTE_HOME"\" >> /etc/environment
+echo "PATH=\"$PATH"\" >> /etc/environment
