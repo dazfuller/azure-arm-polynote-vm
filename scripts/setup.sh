@@ -4,8 +4,8 @@ apt update
 apt upgrade -y
 apt update
 
-echo "Installing Java OpenJDK 11 ..."
-apt install openjdk-11-jdk -y
+echo "Installing Java OpenJDK 8 ..."
+apt install openjdk-8-jdk -y
 
 echo "Installing Pip3 ..."
 apt install python3-pip -y
@@ -17,7 +17,7 @@ if [ -d "/opt/spark" ]; then rm -Rf /opt/spark; fi
 mv spark-2.4.4-bin-hadoop2.7/ /opt/spark
 
 echo "Downloading Polynote ..."
-curl -o polynote-dist.tar.gz -L -O  https://github.com/polynote/polynote/releases/download/0.2.14/polynote-dist-2.12.tar.gz
+curl -o polynote-dist.tar.gz -L -O https://github.com/polynote/polynote/releases/download/0.2.15/polynote-dist.tar.gz
 tar -zxvpf polynote-dist.tar.gz
 if [ -d "/opt/polynote" ]; then rm -Rf /opt/polynote; fi
 mv polynote/ /opt/polynote
