@@ -32,14 +32,11 @@ When the deployment is complete the polynote service should be started, so you c
 
 _N.B._ The default port for Polynote is `8192`, if you want to change this you will need to modify the YAML configuration file as per the [documentation](https://polynote.org/docs/01-installation.html).
 
-You can find the IP address/DNS name for your VM either via the Azure Portal or from the command line.
+You can find the DNS name for your VM either via the Azure Portal or from the command line.
 
 ```bash
-# Get the VM name
-az vm list -g <resource group name> -o table
-
-# Get the fully-qualified domain name
-az network public-ip show -g <resource group name> -n <vm name> --query "dnsSettings.fqdn"
+# Get the VM details and filter to the name and fully qualified DNS
+az vm list -g <resource group name> -d --query "[].{name: name, fqdns: fqdns}" --output table
 ```
 
 ## Available VM sizes
