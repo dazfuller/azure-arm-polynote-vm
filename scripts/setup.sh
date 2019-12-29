@@ -37,7 +37,7 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 if [ -z "$SPARK_HOME" ]; then
-    echo SPARK_HOME=/opt/spark
+    export SPARK_HOME=/opt/spark
     echo ""
     echo "export SPARK_HOME=$SPARK_HOME" >> /etc/bash.bashrc
     echo "export PATH=\"\$PATH:\$SPARK_HOME/bin:\$SPARK_HOME/sbin"\" >> /etc/bash.bashrc
