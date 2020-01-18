@@ -2,6 +2,8 @@
 
 This is an example ARM template to deploy an Azure virtual machine running [Polynote](https://polynote.org/).
 
+The simplest way to deploy is to just click the "Deploy to Azure" button here. Read on if you want to do it from the command line instead.
+
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
 ## Deploying using the CLI
