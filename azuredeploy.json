@@ -147,6 +147,27 @@
                             "destinationAddressPrefixes": [
                             ]
                         }
+                    },
+                    {
+                        "name": "AllowSparkUI_Client",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8080",
+                            "sourceAddressPrefix": "[concat(parameters('clientIpAddress'), '/32')]",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
                     }
                 ]
             }
