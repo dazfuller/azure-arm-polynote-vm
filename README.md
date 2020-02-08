@@ -17,7 +17,7 @@ az group create -g <resource group name>
 # Deploy the template
 az group deployment create \
     -g <resource group name> \
-    --template-file .\templates\azuredeploy.json \
+    --template-file azuredeploy.json \
     --parameters resourcePrefix='tstvm' clientIpAddress='<your ip address>' vmAdminUser='<admin username>' vmAdminPass='<admin password>' \
     --verbose
 ```
