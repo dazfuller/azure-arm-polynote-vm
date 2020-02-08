@@ -153,11 +153,11 @@
                         "properties": {
                             "protocol": "TCP",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "8080",
+                            "destinationPortRange": "4040",
                             "sourceAddressPrefix": "[concat(parameters('clientIpAddress'), '/32')]",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 200,
+                            "priority": 300,
                             "direction": "Inbound",
                             "sourcePortRanges": [
                             ],
