@@ -14,7 +14,7 @@ echo "Downloading Spark ..."
 curl -o spark-dist.tgz -L -O http://apache.mirror.anlx.net/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz
 tar xvf spark-dist.tgz
 if [ -d "/opt/spark" ]; then rm -Rf /opt/spark; fi
-mv spark-2.4.4-bin-hadoop2.7/ /opt/spark
+mv spark-2.4.5-bin-hadoop2.7/ /opt/spark
 
 echo "Downloading Polynote ..."
 curl -o polynote-dist.tar.gz -L -O https://github.com/polynote/polynote/releases/download/0.3.2/polynote-dist.tar.gz
