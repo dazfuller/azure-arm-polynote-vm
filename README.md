@@ -12,7 +12,10 @@ The following commands can be used to deploy the template from the command line 
 
 ```bash
 # Create a resource group to deploy the virtual machine to
-az group create -g <resource group name>
+az group create -g <resource group name> -l <location name>
+
+# For example
+az group create -g polynote -l northeurope
 
 # Deploy the template
 az group deployment create \
