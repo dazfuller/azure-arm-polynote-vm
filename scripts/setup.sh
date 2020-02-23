@@ -1,8 +1,18 @@
 #!/bin/sh
+echo "Getting version of ubuntu deployed ..."
+version="$(lsb_release -r -s)"
+
+echo "Added Microsoft package repo ..."
+wget https://packages.microsoft.com/config/ubuntu/$version/packages-microsoft-prod.deb
+dpkg -i packages-microsoft-prod.deb
+
 echo "Updating packages ..."
 apt update
 apt upgrade -y
 apt update
+
+echo "Install blob fuse package ..."
+apt install blobdust -y
 
 echo "Installing Java OpenJDK 8 ..."
 apt install openjdk-8-jdk -y
@@ -27,6 +37,9 @@ echo "# The host and port can be set by uncommenting and editing the following l
 echo "listen:" >> /opt/polynote/config.yml
 echo "  host: 0.0.0.0" >> /opt/polynote/config.yml
 echo "  port: 8192" >> /opt/polynote/config.yml
+echo "" >> /opt/polynote/config.yml
+echo "storage:" >> /opt/polynote/config.yml
+echo "  dir:/media/data/notebooks" >> /opt/polynote/config.yml
 
 echo "Setting user profile environment variables ..."
 if [ -z "$JAVA_HOME" ]; then
@@ -58,12 +71,31 @@ fi
 echo "Installing python dependencies ..."
 pip3 install jep jedi pyspark virtualenv numpy pandas fastparquet requests
 
+echo "Set up polynote location"
 chown -R $1:$1 /opt/polynote
 
-echo "Refreshing bash"
-bash
+echo "Create mount point"
 
-echo "Updating /etc/environment"
+mkdir /mnt/blobfusetmp
+chown -R $1:$1 /mnt/blobfusetmp
+
+mkdir /media/polydata
+chown -R $1:$1 /media/polydata
+
+echo "Refreshing bash"
+echo "accountName $2" >> /opt/polynote/connection.cfg
+echo "accountKey $3" >> /opt/polynote/connection.cfg
+echo "authType Key" >> /opt/polynote/connection.cfg
+echo "containerName $4" >> /opt/polynote/connection.cfg
+
+echo "blobfuse /media/polydata --tmp-path=/mnt/blobfusetmp -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 --config-file=/opt/polynote/connection.cfg --log-level=LOG_DEBUG --file-cache-timeout-in-seconds=120 -o allow_other"
+
+echo "/opt/polynote/mount.sh  /media/polydata       fuse    _netdev" >> /etc/fstab
+
+mount /mnt/data
+mkdir /mnt/data/notebooks
+
+echo "Updating /etc/environment ..."
 echo "JAVA_HOME=\"$JAVA_HOME"\" >> /etc/environment
 echo "SPARK_HOME=\"$SPARK_HOME"\" >> /etc/environment
 echo "PYSPARK_ALLOW_INSECURE_GATEWAY=1" >> /etc/environment

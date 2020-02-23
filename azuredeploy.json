@@ -53,7 +53,9 @@
     ],
     "variables": {
         "resourceGroupUniqueId": "[uniqueString(resourceGroup().id)]",
+        "storageApiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]",
         "storageAccountName": "[concat(parameters('resourcePrefix'), 'data', variables('resourceGroupUniqueId'))]",
+        "containerName": "data",
         "nsgName": "[concat(parameters('resourcePrefix'), '-nsg')]",
         "vnetName": "[concat(parameters('resourcePrefix'), '-vnet')]",
         "vmName": "[concat(parameters('resourcePrefix'), '-vm-', variables('resourceGroupUniqueId'))]",
@@ -64,7 +66,7 @@
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2018-02-01",
+            "apiVersion": "[variables('storageApiVersion')]",
             "name": "[variables('storageAccountName')]",
             "location": "[resourceGroup().location]",
             "kind": "StorageV2",
@@ -84,7 +86,20 @@
                     }
                 },
                 "supportsHttpsTrafficOnly": true
-            }
+            },
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "[variables('storageApiVersion')]",
+                    "name": "[concat('default/', variables('containerName'))]",
+                    "dependsOn": [
+                        "[variables('storageAccountName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                }
+            ]
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
