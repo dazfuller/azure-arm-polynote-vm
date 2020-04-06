@@ -12,7 +12,7 @@ apt upgrade -y
 apt update
 
 echo "Install blob fuse package ..."
-apt install blobdust -y
+apt install blobfuse -y
 
 echo "Installing Java OpenJDK 8 ..."
 apt install openjdk-8-jdk -y
@@ -39,7 +39,9 @@ echo "  host: 0.0.0.0" >> /opt/polynote/config.yml
 echo "  port: 8192" >> /opt/polynote/config.yml
 echo "" >> /opt/polynote/config.yml
 echo "storage:" >> /opt/polynote/config.yml
-echo "  dir:/media/data/notebooks" >> /opt/polynote/config.yml
+echo "  mounts:"  >> /opt/polynote/config.yml
+echo "    shared_notebooks:"  >> /opt/polynote/config.yml
+echo "      dir:/media/polydata/notebooks" >> /opt/polynote/config.yml
 
 echo "Setting user profile environment variables ..."
 if [ -z "$JAVA_HOME" ]; then
@@ -88,12 +90,13 @@ echo "accountKey $3" >> /opt/polynote/connection.cfg
 echo "authType Key" >> /opt/polynote/connection.cfg
 echo "containerName $4" >> /opt/polynote/connection.cfg
 
-echo "blobfuse /media/polydata --tmp-path=/mnt/blobfusetmp -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 --config-file=/opt/polynote/connection.cfg --log-level=LOG_DEBUG --file-cache-timeout-in-seconds=120 -o allow_other"
+echo "blobfuse /media/polydata --tmp-path=/mnt/blobfusetmp -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 --config-file=/opt/polynote/connection.cfg --log-level=LOG_DEBUG --file-cache-timeout-in-seconds=120 -o allow_other" > /opt/polynote/mount.sh
 
 echo "/opt/polynote/mount.sh  /media/polydata       fuse    _netdev" >> /etc/fstab
 
-mount /mnt/data
-mkdir /mnt/data/notebooks
+mount /media/polydata
+mkdir /media/polydata/notebooks
+mkdir /media/polydata/data
 
 echo "Updating /etc/environment ..."
 echo "JAVA_HOME=\"$JAVA_HOME"\" >> /etc/environment
