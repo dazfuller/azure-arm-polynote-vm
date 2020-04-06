@@ -342,10 +342,11 @@
                         "settings": {
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('sh setup.sh ', parameters('vmAdminUser'))]",
+                            "commandToExecute": "[concat('sh setup.sh ', parameters('vmAdminUser'), ' ', variables('storageAccountName'), ' ', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('storageApiVersion')).keys[0].value, ' ', variables('containerName'))]",
                             "fileUris": [
                                 "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/setup.sh",
-                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/polynote-server.service"
+                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/polynote-server.service",
+                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/master/scripts/demo.ipynb"
                             ]
                         }
                     }
