@@ -41,7 +41,7 @@ echo "" >> /opt/polynote/config.yml
 echo "storage:" >> /opt/polynote/config.yml
 echo "  mounts:"  >> /opt/polynote/config.yml
 echo "    shared_notebooks:"  >> /opt/polynote/config.yml
-echo "      dir:/media/polydata/notebooks" >> /opt/polynote/config.yml
+echo "      dir: /media/polydata/notebooks" >> /opt/polynote/config.yml
 
 echo "Setting user profile environment variables ..."
 if [ -z "$JAVA_HOME" ]; then
@@ -94,6 +94,7 @@ echo "blobfuse /media/polydata --tmp-path=/mnt/blobfusetmp -o attr_timeout=240 -
 
 echo "/opt/polynote/mount.sh  /media/polydata       fuse    _netdev" >> /etc/fstab
 
+chmod a+x /opt/polynote/mount.sh
 mount /media/polydata
 mkdir /media/polydata/notebooks
 mkdir /media/polydata/data
