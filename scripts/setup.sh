@@ -39,6 +39,7 @@ echo "  host: 0.0.0.0" >> /opt/polynote/config.yml
 echo "  port: 8192" >> /opt/polynote/config.yml
 echo "" >> /opt/polynote/config.yml
 echo "storage:" >> /opt/polynote/config.yml
+echo "  dir: notebooks" >> /opt/polynote/config.yml
 echo "  mounts:"  >> /opt/polynote/config.yml
 echo "    shared_notebooks:"  >> /opt/polynote/config.yml
 echo "      dir: /media/polydata/notebooks" >> /opt/polynote/config.yml
@@ -98,6 +99,9 @@ chmod a+x /opt/polynote/mount.sh
 mount /media/polydata
 mkdir /media/polydata/notebooks
 mkdir /media/polydata/data
+
+echo "Copy the demo notebook to the team shared location"
+cp demo.ipynb /media/polydata/notebooks/
 
 echo "Updating /etc/environment ..."
 echo "JAVA_HOME=\"$JAVA_HOME"\" >> /etc/environment
