@@ -39,7 +39,7 @@ echo "  host: 0.0.0.0" >> /opt/polynote/config.yml
 echo "  port: 8192" >> /opt/polynote/config.yml
 echo "" >> /opt/polynote/config.yml
 echo "storage:" >> /opt/polynote/config.yml
-echo "  dir: notebooks" >> /opt/polynote/config.yml
+echo "  dir: /home/$1/notebooks" >> /opt/polynote/config.yml
 echo "  mounts:"  >> /opt/polynote/config.yml
 echo "    shared_notebooks:"  >> /opt/polynote/config.yml
 echo "      dir: /media/polydata/notebooks" >> /opt/polynote/config.yml
@@ -77,13 +77,16 @@ pip3 install jep jedi pyspark virtualenv numpy pandas fastparquet requests
 echo "Set up polynote location"
 chown -R $1:$1 /opt/polynote
 
-echo "Create mount point"
+echo "Create mount points and directories"
 
 mkdir /mnt/blobfusetmp
 chown -R $1:$1 /mnt/blobfusetmp
 
 mkdir /media/polydata
 chown -R $1:$1 /media/polydata
+
+mkdir /home/$1/notebooks
+chown -R $1:$1 /home/$1/notebooks
 
 echo "Refreshing bash"
 echo "accountName $2" >> /opt/polynote/connection.cfg
