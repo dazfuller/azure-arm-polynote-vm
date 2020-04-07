@@ -18,7 +18,7 @@ az group create -g <resource group name> -l <location name>
 az group create -g polynote -l northeurope
 
 # Deploy the template
-az group deployment create \
+az deployment group create \
     -g <resource group name> \
     --template-file azuredeploy.json \
     --parameters resourcePrefix='tstvm' clientIpAddress='<your ip address>' vmAdminUser='<admin username>' vmAdminPass='<admin password>' \
