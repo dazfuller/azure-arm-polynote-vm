@@ -43,6 +43,8 @@ echo "  dir: /home/$1/notebooks" >> /opt/polynote/config.yml
 echo "  mounts:"  >> /opt/polynote/config.yml
 echo "    shared_notebooks:"  >> /opt/polynote/config.yml
 echo "      dir: /media/polydata/notebooks" >> /opt/polynote/config.yml
+echo "    examples:"  >> /opt/polynote/config.yml
+echo "      dir: /home/$1/examples" >> /opt/polynote/config.yml
 
 echo "Setting user profile environment variables ..."
 if [ -z "$JAVA_HOME" ]; then
@@ -105,6 +107,10 @@ mkdir /media/polydata/data
 
 echo "Copy the demo notebook to the team shared location"
 cp demo.ipynb /media/polydata/notebooks/
+
+echo "Copy the example notebooks"
+cp -R /opt/polynote/examples /home/$1/examples
+chown -R $1:$1 /home/$1/examples
 
 echo "Updating /etc/environment ..."
 echo "JAVA_HOME=\"$JAVA_HOME"\" >> /etc/environment
