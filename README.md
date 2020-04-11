@@ -6,6 +6,10 @@ The simplest way to deploy is to just click the "Deploy to Azure" button here. R
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
+And you end up with the following ready to go
+
+![Polynote VM](./media/screenshot-main.png)
+
 ## Deploying using the CLI
 
 The following commands can be used to deploy the template from the command line using the [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest).
