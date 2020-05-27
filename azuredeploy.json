@@ -47,6 +47,13 @@
             "metadata": {
                 "description": "Admin password for the virtual machine"
             }
+        },
+        "deploymentBranch": {
+            "type": "string",
+            "defaultValue": "master",
+            "metadata": {
+                "description": "Remote branch to use for picking up script files, defaults to 'master'"
+            }
         }
     },
     "functions": [
@@ -344,9 +351,9 @@
                         "protectedSettings": {
                             "commandToExecute": "[concat('sh setup.sh ', parameters('vmAdminUser'), ' ', variables('storageAccountName'), ' ', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('storageApiVersion')).keys[0].value, ' ', variables('containerName'))]",
                             "fileUris": [
-                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/dazfuller/0.3.9-update/scripts/setup.sh",
-                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/dazfuller/0.3.9-update/scripts/polynote-server.service",
-                                "https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/dazfuller/0.3.9-update/scripts/demo.ipynb"
+                                "[concat('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/', parameters('deploymentBranch'), '/scripts/setup.sh')]",
+                                "[concat('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/', parameters('deploymentBranch'), '/scripts/polynote-server.service')]",
+                                "[concat('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/', parameters('deploymentBranch'), '/scripts/demo.ipynb')]"
                             ]
                         }
                     }
