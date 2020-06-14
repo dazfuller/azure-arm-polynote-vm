@@ -27,7 +27,7 @@ if [ -d "/opt/spark" ]; then rm -Rf /opt/spark; fi
 mv spark-2.4.5-bin-hadoop2.7/ /opt/spark
 
 echo "Downloading Polynote ..."
-curl -o polynote-dist.tar.gz -L -O https://github.com/polynote/polynote/releases/download/0.3.10/polynote-dist.tar.gz
+curl -o polynote-dist.tar.gz -L -O https://github.com/polynote/polynote/releases/download/$5/polynote-dist.tar.gz
 tar -zxvpf polynote-dist.tar.gz
 if [ -d "/opt/polynote" ]; then rm -Rf /opt/polynote; fi
 mv polynote/ /opt/polynote
