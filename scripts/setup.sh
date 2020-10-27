@@ -74,7 +74,7 @@ if [ -z "$POLYNOTE_HOME" ]; then
 fi
 
 echo "Installing python dependencies ..."
-pip3 install jep jedi pyspark==2.4.7 virtualenv numpy pandas fastparquet requests matplotlib
+pip3 install jep==3.9.0 jedi>=0.16.0 pyspark==2.4.7 virtualenv numpy pandas fastparquet requests matplotlib
 
 echo "Set up polynote location"
 chown -R $1:$1 /opt/polynote
