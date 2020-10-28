@@ -20,7 +20,7 @@ apt install openjdk-8-jdk -y
 eho "Installing Python 3.7"
 apt install software-properties-common -y
 add-apt-repository ppa:deadsnakes/ppa -y
-apt install python3.7 -y
+apt install python3.7 python3.7-dev python3.7-venv -y
 
 echo "Installing pip ..."
 apt install python3-pip -y
@@ -80,6 +80,7 @@ if [ -z "$POLYNOTE_HOME" ]; then
 fi
 
 echo "Installing python dependencies ..."
+python3.7 -m pip install --upgrade pip
 python3.7 -m pip install jep==3.9.0 jedi>=0.16.0 pyspark==2.4.5 virtualenv numpy pandas fastparquet requests matplotlib
 
 echo "Set up polynote location"
