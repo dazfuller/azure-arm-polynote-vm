@@ -61,7 +61,8 @@
             "allowedValues": [
                 "0.3.9",
                 "0.3.10",
-                "0.3.11"
+                "0.3.11",
+                "0.3.12"
             ],
             "metadata": {
                 "description": "The version of polynote to deploy"
@@ -104,7 +105,8 @@
                         }
                     }
                 },
-                "supportsHttpsTrafficOnly": true
+                "supportsHttpsTrafficOnly": true,
+                "minimumTlsVersion": "TLS1_2"
             },
             "resources": [
                 {

@@ -17,11 +17,17 @@ apt install blobfuse -y
 echo "Installing Java OpenJDK 8 ..."
 apt install openjdk-8-jdk -y
 
-echo "Installing Pip3 ..."
+eho "Installing Python 3.7"
+apt install software-properties-common -y
+add-apt-repository ppa:deadsnakes/ppa -y
+apt install python3.7 python3.7-dev python3.7-venv -y
+
+echo "Installing pip ..."
 apt install python3-pip -y
+python3.7 -m pip install pip
 
 echo "Downloading Spark ..."
-curl -o spark-dist.tgz -L -O http://apache.mirror.anlx.net/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz
+curl -o spark-dist.tgz -L -O https://archive.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz
 tar xvf spark-dist.tgz
 if [ -d "/opt/spark" ]; then rm -Rf /opt/spark; fi
 mv spark-2.4.5-bin-hadoop2.7/ /opt/spark
@@ -74,7 +80,8 @@ if [ -z "$POLYNOTE_HOME" ]; then
 fi
 
 echo "Installing python dependencies ..."
-pip3 install jep jedi pyspark virtualenv numpy pandas fastparquet requests matplotlib
+python3.7 -m pip install --upgrade pip
+python3.7 -m pip install jep==3.9.0 jedi>=0.16.0 pyspark==2.4.5 virtualenv numpy pandas fastparquet requests matplotlib
 
 echo "Set up polynote location"
 chown -R $1:$1 /opt/polynote
