@@ -30,13 +30,13 @@ param vmAdminPass string
 param deploymentBranch string = 'master'
 
 @allowed([
-  '0.3.9'
   '0.3.10'
   '0.3.11'
   '0.3.12'
+  '0.4.0'
 ])
 @description('The version of polynote to deploy')
-param polynoteVersion string = '0.3.12'
+param polynoteVersion string = '0.4.0'
 
 var location = resourceGroup().location
 var resourceSuffix = uniqueString(resourceGroup().id)               // Defines a unique resource suffix based on the resource group id
@@ -89,7 +89,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
  * Creates a container which is mounted by the VM later
  */
 resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = {
-  name: '${storageAccountName}/default/${containerName}'
+  name: '${storage.name}/default/${containerName}'
 }
 
 /**
