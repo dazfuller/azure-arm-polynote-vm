@@ -1,405 +1,365 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "resourcePrefix": {
-            "type": "string",
-            "maxLength": 5,
-            "metadata": {
-                "description": "Prefix used for naming resources"
-            }
-        },
-        "storageAccountSku": {
-            "type": "string",
-            "defaultValue": "Standard_RAGRS",
-            "allowedValues": [
-                "Standard_LRS",
-                "Standard_ZRS",
-                "Standard_GRS",
-                "Standard_RAGRS"
-            ],
-            "metadata": {
-                "description": "Type of storage account to deploy"
-            }
-        },
-        "clientIpAddress": {
-            "type": "string",
-            "maxLength": 15,
-            "metadata": {
-                "description": "IP address to permit access to"
-            }
-        },
-        "vmSize": {
-            "type": "string",
-            "defaultValue": "Standard_D2s_v3",
-            "metadata": {
-                "description": "SKU for the virtual machine"
-            }
-        },
-        "vmAdminUser": {
-            "type": "string",
-            "metadata": {
-                "description": "Admin username for the virtual machine"
-            }
-        },
-        "vmAdminPass": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Admin password for the virtual machine"
-            }
-        },
-        "deploymentBranch": {
-            "type": "string",
-            "defaultValue": "master",
-            "metadata": {
-                "description": "Remote branch to use for picking up script files, defaults to 'master'"
-            }
-        },
-        "polynoteVersion": {
-            "type": "string",
-            "defaultValue": "0.3.11",
-            "allowedValues": [
-                "0.3.9",
-                "0.3.10",
-                "0.3.11",
-                "0.3.12"
-            ],
-            "metadata": {
-                "description": "The version of polynote to deploy"
-            }
-        }
-    },
-    "functions": [
-    ],
-    "variables": {
-        "resourceGroupUniqueId": "[uniqueString(resourceGroup().id)]",
-        "storageApiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]",
-        "storageAccountName": "[concat(parameters('resourcePrefix'), 'data', variables('resourceGroupUniqueId'))]",
-        "containerName": "data",
-        "nsgName": "[concat(parameters('resourcePrefix'), '-nsg')]",
-        "vnetName": "[concat(parameters('resourcePrefix'), '-vnet')]",
-        "vmName": "[concat(parameters('resourcePrefix'), '-vm-', variables('resourceGroupUniqueId'))]",
-        "vmPublicIpName": "[concat(variables('vmName'), '-ip')]",
-        "vmNicName": "[concat(variables('vmName'), '-nic')]",
-        "vmAutoShutdownName": "[concat('shutdown-computevm-', variables('vmName'))]"
-    },
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "[variables('storageApiVersion')]",
-            "name": "[variables('storageAccountName')]",
-            "location": "[resourceGroup().location]",
-            "kind": "StorageV2",
-            "sku": {
-                "name": "[parameters('storageAccountSku')]"
-            },
-            "properties": {
-                "encryption": {
-                    "keySource": "Microsoft.Storage",
-                    "services": {
-                        "blob": {
-                            "enabled": true
-                        },
-                        "file": {
-                            "enabled": true
-                        }
-                    }
-                },
-                "supportsHttpsTrafficOnly": true,
-                "minimumTlsVersion": "TLS1_2"
-            },
-            "resources": [
-                {
-                    "type": "blobServices/containers",
-                    "apiVersion": "[variables('storageApiVersion')]",
-                    "name": "[concat('default/', variables('containerName'))]",
-                    "dependsOn": [
-                        "[variables('storageAccountName')]"
-                    ],
-                    "properties": {
-                        "publicAccess": "None"
-                    }
-                }
-            ]
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2019-04-01",
-            "name": "[concat(variables('storageAccountName'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-            ],
-            "properties": {
-                "deleteRetentionPolicy": {
-                    "enabled": false
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('nsgName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "AllowSSH_Client",
-                        "properties": {
-                            "protocol": "TCP",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "22",
-                            "sourceAddressPrefix": "[concat(parameters('clientIpAddress'), '/32')]",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 100,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [
-                            ],
-                            "destinationPortRanges": [
-                            ],
-                            "sourceAddressPrefixes": [
-                            ],
-                            "destinationAddressPrefixes": [
-                            ]
-                        }
-                    },
-                    {
-                        "name": "AllowPolynote_Client",
-                        "properties": {
-                            "protocol": "TCP",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "8192",
-                            "sourceAddressPrefix": "[concat(parameters('clientIpAddress'), '/32')]",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 200,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [
-                            ],
-                            "destinationPortRanges": [
-                            ],
-                            "sourceAddressPrefixes": [
-                            ],
-                            "destinationAddressPrefixes": [
-                            ]
-                        }
-                    },
-                    {
-                        "name": "AllowSparkUI_Client",
-                        "properties": {
-                            "protocol": "TCP",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "4040",
-                            "sourceAddressPrefix": "[concat(parameters('clientIpAddress'), '/32')]",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 300,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [
-                            ],
-                            "destinationPortRanges": [
-                            ],
-                            "sourceAddressPrefixes": [
-                            ],
-                            "destinationAddressPrefixes": [
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('vmPublicIpName')]",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "Basic"
-            },
-            "properties": {
-                "publicIPAddressVersion": "IPv4",
-                "publicIPAllocationMethod": "Dynamic",
-                "idleTimeoutInMinutes": 4,
-                "dnsSettings": {
-                    "domainNameLabel": "[variables('vmName')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('vnetName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-            ],
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "10.10.0.0/16"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "type": "subnets",
-                        "name": "default",
-                        "properties": {
-                            "addressPrefix": "10.10.1.0/24",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-                            }
-                        }
-                    }
-                ],
-                "enableDdosProtection": false,
-                "enableVmProtection": false
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('vmNicName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]"
-                            },
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]"
-                            },
-                            "primary": true,
-                            "privateIPAddressVersion": "IPv4"
-                        }
-                    }
-                ],
-                "enableAcceleratedNetworking": false,
-                "enableIPForwarding": false,
-                "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-03-01",
-            "name": "[variables('vmName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]",
-                "[resourceId('Microsoft.Storage/StorageAccounts', variables('storageAccountName'))]"
-            ],
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[parameters('vmSize')]"
-                },
-                "storageProfile": {
-                    "imageReference": {
-                        "publisher": "Canonical",
-                        "offer": "UbuntuServer",
-                        "sku": "18.04-LTS",
-                        "version": "latest"
-                    },
-                    "osDisk": {
-                        "osType": "Linux",
-                        "name": "[concat(variables('vmName'), '_disk1_7441d788ff304b96b42c3d3763bfa0cc')]",
-                        "createOption": "FromImage",
-                        "caching": "ReadWrite",
-                        "managedDisk": {
-                            "storageAccountType": "Premium_LRS"
-                        },
-                        "diskSizeGB": 30
-                    },
-                    "dataDisks": [
-                    ]
-                },
-                "osProfile": {
-                    "computerName": "[variables('vmName')]",
-                    "adminUsername": "[parameters('vmAdminUser')]",
-                    "adminPassword": "[parameters('vmAdminPass')]",
-                    "linuxConfiguration": {
-                        "disablePasswordAuthentication": false,
-                        "provisionVMAgent": true
-                    },
-                    "allowExtensionOperations": true
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
-                        }
-                    ]
-                },
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": true,
-                        "storageUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net/')]"
-                    }
-                }
-            },
-            "resources": [
-                {
-                    "type": "extensions",
-                    "apiVersion": "2019-03-01",
-                    "name": "config-app",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Extensions",
-                        "type": "CustomScript",
-                        "typeHandlerVersion": "2.0",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                        },
-                        "protectedSettings": {
-                            "commandToExecute": "[concat('sh setup.sh ', parameters('vmAdminUser'), ' ', variables('storageAccountName'), ' ', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('storageApiVersion')).keys[0].value, ' ', variables('containerName'), ' ', parameters('polynoteVersion'))]",
-                            "fileUris": [
-                                "[concat('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/', parameters('deploymentBranch'), '/scripts/setup.sh')]",
-                                "[concat('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/', parameters('deploymentBranch'), '/scripts/polynote-server.service')]",
-                                "[concat('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/', parameters('deploymentBranch'), '/scripts/demo.ipynb')]"
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "type": "microsoft.devtestlab/schedules",
-            "apiVersion": "2018-09-15",
-            "name": "[variables('vmAutoShutdownName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
-            ],
-            "properties": {
-                "status": "Enabled",
-                "taskType": "ComputeVmShutdownTask",
-                "dailyRecurrence": {
-                    "time": "2000"
-                },
-                "timeZoneId": "UTC",
-                "notificationSettings": {
-                    "status": "Disabled"
-                },
-                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
-            }
-        }
-    ],
-    "outputs": {
-        "vmFqdn": {
-            "type": "string",
-            "value": "[reference(variables('vmPublicIpName')).dnsSettings.fqdn]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.255.40792",
+      "templateHash": "12097886156099645680"
     }
+  },
+  "parameters": {
+    "resourcePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix used for naming resources"
+      },
+      "maxLength": 5
+    },
+    "storageAccountSku": {
+      "type": "string",
+      "defaultValue": "Standard_RAGRS",
+      "metadata": {
+        "description": "Type of storage account to deploy"
+      },
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_GZRS",
+        "Standard_RAGRS",
+        "Standard_RAGZRS"
+      ]
+    },
+    "clientIpAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "IP address to permit access to"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "SKU for the virtual machine"
+      }
+    },
+    "vmAdminUser": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username for the virtual machine"
+      }
+    },
+    "vmAdminPass": {
+      "type": "secureString",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "deploymentBranch": {
+      "type": "string",
+      "defaultValue": "master",
+      "metadata": {
+        "description": "Remote branch to use for picking up script files, defaults to 'master'"
+      }
+    },
+    "polynoteVersion": {
+      "type": "string",
+      "defaultValue": "0.4.0",
+      "metadata": {
+        "description": "The version of polynote to deploy"
+      },
+      "allowedValues": [
+        "0.3.10",
+        "0.3.11",
+        "0.3.12",
+        "0.4.0"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "resourceSuffix": "[uniqueString(resourceGroup().id)]",
+    "storageAccountName": "[format('{0}data{1}', parameters('resourcePrefix'), variables('resourceSuffix'))]",
+    "containerName": "data",
+    "nsgName": "[format('{0}-nsg{1}', parameters('resourcePrefix'), variables('resourceSuffix'))]",
+    "vnetName": "[format('{0}-vnet{1}', parameters('resourcePrefix'), variables('resourceSuffix'))]",
+    "vnetAddresses": "10.10.0.0/16",
+    "defaultSubnetAddresses": "10.10.1.0/24",
+    "vmName": "[format('{0}-vm-{1}', parameters('resourcePrefix'), variables('resourceSuffix'))]",
+    "vmPublicIpName": "[format('{0}-ip', variables('vmName'))]",
+    "vmNicName": "[format('{0}-nic', variables('vmName'))]",
+    "vmAutoShutdownName": "[format('shutdown-computevm-{0}', variables('vmName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', variables('vmName'), 'config-app')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "protectedSettings": {
+          "commandToExecute": "[format('sh setup.sh {0} {1} {2} {3} {4}', parameters('vmAdminUser'), variables('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-02-01').keys[0].value, variables('containerName'), parameters('polynoteVersion'))]",
+          "fileUris": [
+            "[format('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/{0}/scripts/setup.sh', parameters('deploymentBranch'))]",
+            "[format('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/{0}/scripts/polynote-server.service', parameters('deploymentBranch'))]",
+            "[format('https://raw.githubusercontent.com/dazfuller/azure-arm-polynote-vm/{0}/scripts/demo.ipynb', parameters('deploymentBranch'))]"
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[variables('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "[parameters('storageAccountSku')]"
+      },
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "file": {
+              "enabled": true
+            },
+            "queue": {
+              "enabled": true
+            },
+            "table": {
+              "enabled": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('containerName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('nsgName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowSSH_Client",
+            "properties": {
+              "priority": 100,
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[format('{0}/32', parameters('clientIpAddress'))]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowPolynote_Client",
+            "properties": {
+              "priority": 200,
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "8192",
+              "sourceAddressPrefix": "[format('{0}/32', parameters('clientIpAddress'))]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowSparkUI_Client",
+            "properties": {
+              "priority": 300,
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "4040",
+              "sourceAddressPrefix": "[format('{0}/32', parameters('clientIpAddress'))]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('vmPublicIpName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Dynamic",
+        "idleTimeoutInMinutes": 20,
+        "dnsSettings": {
+          "domainNameLabel": "[variables('vmName')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('vnetName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetAddresses')]"
+          ]
+        },
+        "enableVmProtection": true,
+        "enableDdosProtection": false,
+        "subnets": [
+          {
+            "name": "default",
+            "properties": {
+              "addressPrefix": "[variables('defaultSubnetAddresses')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('vmNicName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAddressVersion": "IPv4",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]"
+              },
+              "subnet": {
+                "id": "[format('{0}/subnets/default', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-12-01",
+      "name": "[variables('vmName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('vmAdminUser')]",
+          "adminPassword": "[parameters('vmAdminPass')]",
+          "allowExtensionOperations": true,
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": false,
+            "provisionVMAgent": true
+          }
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Linux",
+            "createOption": "FromImage",
+            "caching": "ReadWrite",
+            "diskSizeGB": 30,
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DevTestLab/schedules",
+      "apiVersion": "2018-09-15",
+      "name": "[variables('vmAutoShutdownName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "status": "Enabled",
+        "taskType": "ComputeVmShutdownTask",
+        "dailyRecurrence": {
+          "time": "2000"
+        },
+        "timeZoneId": "UTC",
+        "notificationSettings": {
+          "status": "Disabled"
+        },
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "vmFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))).dnsSettings.fqdn]"
+    }
+  }
 }
