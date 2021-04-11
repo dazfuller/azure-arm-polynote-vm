@@ -1,6 +1,6 @@
 # Azure VM - Polynote Server
 
-This is an example ARM template to deploy an Azure virtual machine running [Polynote](https://polynote.org/).
+This is an example template to deploy an Azure virtual machine running [Polynote](https://polynote.org/).
 
 The simplest way to deploy is to just click the "Deploy to Azure" button here. Read on if you want to do it from the command line instead.
 
@@ -24,7 +24,7 @@ az group create -g polynote -l northeurope
 # Deploy the template
 az deployment group create \
     -g <resource group name> \
-    --template-file azuredeploy.json \
+    --template-file azuredeploy.bicep \
     --parameters resourcePrefix='tstvm' clientIpAddress='<your ip address>' vmAdminUser='<admin username>' vmAdminPass='<admin password>' \
     --verbose
 ```
