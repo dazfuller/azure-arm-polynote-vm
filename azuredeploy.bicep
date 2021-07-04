@@ -26,8 +26,8 @@ param vmAdminUser string
 @description('')
 param vmAdminPass string
 
-@description('Remote branch to use for picking up script files, defaults to \'master\'')
-param deploymentBranch string = 'master'
+@description('Remote branch to use for picking up script files, defaults to \'main\'')
+param deploymentBranch string = 'main'
 
 @allowed([
   '0.3.10'
