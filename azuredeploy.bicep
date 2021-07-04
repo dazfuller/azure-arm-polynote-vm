@@ -34,9 +34,11 @@ param deploymentBranch string = 'master'
   '0.3.11'
   '0.3.12'
   '0.4.0'
+  '0.4.1'
+  '0.4.2'
 ])
 @description('The version of polynote to deploy')
-param polynoteVersion string = '0.4.0'
+param polynoteVersion string = '0.4.2'
 
 var location = resourceGroup().location
 var resourceSuffix = uniqueString(resourceGroup().id)               // Defines a unique resource suffix based on the resource group id
